@@ -333,6 +333,7 @@ function connect(){
   const host = serverAddr || location.hostname;
   const proto = location.protocol === 'https:' ? 'wss:' : 'ws:';
   const isCloudflare = host.includes('trycloudflare.com');
+  const isRailway = host.includes('.railway.app');
   const wsPort = isCloudflare ? '' : ':3001';
   const url = `${proto}//${host}${wsPort}/${encodeURIComponent(myRoom)}`;
   dbg('连接:', url);
