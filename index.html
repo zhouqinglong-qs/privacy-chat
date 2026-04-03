@@ -30,7 +30,7 @@ body{font-family:-apple-system,system-ui,"PingFang SC","Microsoft YaHei",sans-se
 .feed-card .title{font-size:14px;font-weight:600;line-height:1.4;color:#1a1a1a;margin-bottom:6px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
 .feed-card .footer{font-size:11px;color:#999;display:flex;gap:10px}
 
-/* 伪装入口 */
+/* 伪装入口——点击"新闻"后弹出设置 */
 #mask-overlay{position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:200;display:none;justify-content:center;align-items:center;padding:20px}
 #mask-overlay.show{display:flex}
 .mask-box{background:#fff;border-radius:16px;padding:28px;width:min(380px,95vw);box-shadow:0 20px 60px rgba(0,0,0,.3)}
@@ -54,7 +54,7 @@ body{font-family:-apple-system,system-ui,"PingFang SC","Microsoft YaHei",sans-se
 #chat-ui{flex:1;display:flex;flex-direction:column;min-height:0}
 #chat-ui{display:none}
 
-/* 工具栏 */
+/* 伪装工具栏 */
 #toolbar{background:#fff;border-bottom:1px solid #eee;padding:10px 16px;display:flex;align-items:center;gap:8px}
 #toolbar .tab{font-size:13px;color:#666;padding:6px 12px;border-radius:16px;cursor:pointer;transition:all .2s}
 #toolbar .tab:hover{background:#f0f0f0}
@@ -64,7 +64,10 @@ body{font-family:-apple-system,system-ui,"PingFang SC","Microsoft YaHei",sans-se
 #toolbar .status-dot{width:8px;height:8px;background:#4ade80;border-radius:50%}
 #toolbar .sound-btn{background:#f0f0f0;border:none;border-radius:6px;padding:5px 10px;font-size:12px;cursor:pointer;color:#666}
 
-/* 文章区 */
+/* 文章样式的主内容 */
+#main-content{flex:1;overflow-y:auto;display:flex}
+
+/* 文章区（伪装聊天） */
 #article{flex:1;max-width:760px;margin:0 auto;padding:24px 20px 80px}
 .article-header{border-bottom:1px solid #eee;padding-bottom:16px;margin-bottom:20px}
 .article-tag{background:#c80000;color:#fff;font-size:10px;padding:3px 8px;border-radius:3px;font-weight:600;display:inline-block;margin-bottom:12px}
@@ -76,7 +79,7 @@ body{font-family:-apple-system,system-ui,"PingFang SC","Microsoft YaHei",sans-se
 .comment-header{font-size:15px;font-weight:600;color:#1a1a1a;margin-bottom:16px}
 .comment-header span{color:#c80000}
 
-/* 评论区 */
+/* 评论区（伪装消息） */
 #msgs{flex:1;overflow-y:auto;padding:0;display:flex;flex-direction:column;gap:0}
 #msgs{display:none}
 .comment-list{flex:1;overflow-y:auto;padding:16px}
@@ -87,22 +90,24 @@ body{font-family:-apple-system,system-ui,"PingFang SC","Microsoft YaHei",sans-se
 .cmt-body{flex:1;min-width:0;max-width:75%}
 .cmt-name{font-size:12px;color:#666;margin-bottom:4px;font-weight:500}
 .cmt-name span{color:#999;font-weight:400;margin-left:8px}
-.cmt-bubble{background:#f5f6f8;border-radius:12px;padding:10px 14px;font-size:14px;line-height:1.5;word-break:break-all;position:relative}
-.cmt.own .cmt-bubble{background:#c80000;color:#fff;border-bottom-right-radius:4px}
+.cmt-bubble{background:#f5f6f8;border-radius:12px;padding:10px 14px;font-size:14px;line-height:1.5;word-break:break-all;position:relative;box-shadow:0 1px 2px rgba(0,0,0,.05)}
+.cmt.own .cmt-bubble{background:#c80000;color:#fff;border-bottom-right-radius:4px;box-shadow:0 2px 8px rgba(200,0,0,.25)}
 .cmt:not(.own) .cmt-bubble{border-bottom-left-radius:4px}
-.sys-cmt{text-align:center;color:#bbb;font-size:12px;padding:8px 0;background:#fafafa}
+.cmt-time{font-size:10px;color:#ccc;margin-top:4px;padding-left:2px}
+.cmt.own .cmt-time{text-align:right;padding-right:2px}
+.sys-cmt{text-align:center;color:#999;font-size:12px;padding:10px 0;background:transparent;font-style:italic}
 
-/* 输入框 */
-#input-section{flex-shrink:0;background:#fff;border-top:1px solid #eee;padding:12px 16px}
+/* 输入框（伪装评论区输入） */
+#input-section{flex-shrink:0;background:#fff;border-top:2px solid #eee;padding:12px 16px;box-shadow:0 -2px 10px rgba(0,0,0,.05)}
 #input-section{display:none}
-#typing-hint{font-size:12px;color:#c80000;height:18px;margin-bottom:6px;display:none}
+#typing-hint{font-size:12px;color:#c80000;height:18px;margin-bottom:6px;display:none;font-weight:500}
 #typing-hint.show{display:block}
 #input-row{display:flex;gap:10px;align-items:flex-end}
-#txt{background:#f5f6f8;border:1px solid #e8e8e8;border-radius:20px;padding:10px 16px;color:#1a1a1a;font-size:14px;flex:1;resize:none;outline:none;max-height:100px;line-height:1.5}
-#txt:focus{border-color:#c80000;background:#fff}
-#send-btn{background:#c80000;color:#fff;border:none;border-radius:50%;width:42px;height:42px;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0;transition:background .2s}
-#send-btn:hover{background:#a80000}
-#send-btn:disabled{background:#ccc;cursor:not-allowed}
+#txt{background:#f8f9fa;border:2px solid #e8e8e8;border-radius:24px;padding:10px 16px;color:#1a1a1a;font-size:14px;flex:1;resize:none;outline:none;max-height:100px;line-height:1.5;transition:all .2s}
+#txt:focus{border-color:#c80000;background:#fff;box-shadow:0 0 0 3px rgba(200,0,0,.1)}
+#send-btn{background:#c80000;color:#fff;border:none;border-radius:50%;width:44px;height:44px;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0;transition:all .2s;box-shadow:0 2px 8px rgba(200,0,0,.3)}
+#send-btn:hover{background:#a80000;transform:scale(1.05)}
+#send-btn:disabled{background:#ccc;cursor:not-allowed;box-shadow:none}
 
 /* 状态栏 */
 #statusbar{background:#fff;padding:6px 16px;display:flex;align-items:center;gap:8px;font-size:11px;color:#999;border-top:1px solid #eee;display:none}
@@ -110,17 +115,23 @@ body{font-family:-apple-system,system-ui,"PingFang SC","Microsoft YaHei",sans-se
 #pdot.on{background:#4ade80}
 #pdot.wait{background:#facc15}
 
-/* 未读提示 */
-#unread-btn{position:fixed;bottom:90px;left:50%;transform:translateX(-50%);background:#c80000;color:#fff;border:none;border-radius:20px;padding:8px 20px;font-size:13px;cursor:pointer;display:none;box-shadow:0 4px 12px rgba(200,0,0,.3)}
-#unread-btn.show{display:block}
+/* 调试面板 - 默认隐藏 */
+#debug{background:#111;padding:4px 12px;font-size:11px;color:#6b7280;display:none !important;border-top:1px solid #333;max-height:80px;overflow-y:auto}
+#debug.show{display:block !important}
 
-/* Toast */
-#toast{position:fixed;top:50px;left:50%;transform:translateX(-50%);background:#c80000;color:#fff;padding:10px 24px;border-radius:0 0 16px 16px;font-size:13px;opacity:0;transition:all .3s;pointer-events:none;z-index:300;display:none;font-weight:500}
+/* 未读提示 */
+#unread-btn{position:fixed;bottom:90px;left:50%;transform:translateX(-50%);background:#c80000;color:#fff;border:none;border-radius:24px;padding:10px 24px;font-size:14px;cursor:pointer;display:none;box-shadow:0 4px 16px rgba(200,0,0,.4);font-weight:500;animation:pulse 2s infinite}
+#unread-btn.show{display:block}
+@keyframes pulse{0%,100%{box-shadow:0 4px 16px rgba(200,0,0,.4)}50%{box-shadow:0 4px 24px rgba(200,0,0,.6)}}
+
+/* Toast - 优化样式，避开顶部导航 */
+#toast{position:fixed;top:70px;left:50%;transform:translateX(-50%);background:#c80000;color:#fff;padding:12px 28px;border-radius:24px;font-size:14px;opacity:0;transition:all .3s ease;pointer-events:none;z-index:1000;display:none;font-weight:500;box-shadow:0 4px 20px rgba(200,0,0,.4);max-width:90vw;text-align:center}
 #toast.show{display:block;opacity:1}
 </style>
 </head>
 <body>
 
+<!-- 顶部导航 -->
 <div id="header">
   <div class="logo">今日<span>热闻</span></div>
   <nav class="nav">
@@ -132,6 +143,7 @@ body{font-family:-apple-system,system-ui,"PingFang SC","Microsoft YaHei",sans-se
   <button class="search-btn">🔍 搜索</button>
 </div>
 
+<!-- 伪装入口——新闻列表 -->
 <div id="setup">
   <div class="feed-banner" onclick="showSetup()">
     <div class="tag">置顶</div>
@@ -166,8 +178,23 @@ body{font-family:-apple-system,system-ui,"PingFang SC","Microsoft YaHei",sans-se
       <div class="footer"><span>娱乐频道</span><span>昨天</span></div>
     </div>
   </div>
+  <div class="feed-card" onclick="showSetup()">
+    <div class="thumb">🏠</div>
+    <div class="info">
+      <div class="title">多城市取消商品房限购政策，楼市迎来新一轮松绑</div>
+      <div class="footer"><span>房产频道</span><span>昨天</span></div>
+    </div>
+  </div>
+  <div class="feed-card" onclick="showSetup()">
+    <div class="thumb">⚽</div>
+    <div class="info">
+      <div class="title">欧冠半决赛：皇马3-2逆转曼城，连续四年晋级决赛</div>
+      <div class="footer"><span>体育频道</span><span>昨天</span></div>
+    </div>
+  </div>
 </div>
 
+<!-- 设置弹窗 -->
 <div id="mask-overlay">
   <div class="mask-box" style="position:relative">
     <button class="close-btn" onclick="hideSetup()">✕</button>
@@ -195,9 +222,12 @@ body{font-family:-apple-system,system-ui,"PingFang SC","Microsoft YaHei",sans-se
   </div>
 </div>
 
+<!-- 连接条 -->
 <div id="conn-bar">🔄 正在连接...</div>
 
+<!-- 主界面 -->
 <div id="chat-ui">
+  <!-- 工具栏 -->
   <div id="toolbar">
     <div class="tab active" onclick="switchTab(this)">推荐</div>
     <div class="tab" onclick="switchTab(this)">热点</div>
@@ -211,7 +241,9 @@ body{font-family:-apple-system,system-ui,"PingFang SC","Microsoft YaHei",sans-se
     <button class="sound-btn" id="sound-btn" onclick="toggleSound()">🔇</button>
   </div>
 
+  <!-- 文章/评论区 -->
   <div id="main-content">
+    <!-- 文章区 -->
     <div id="article">
       <div class="article-header">
         <div class="article-tag">互动</div>
@@ -226,6 +258,8 @@ body{font-family:-apple-system,system-ui,"PingFang SC","Microsoft YaHei",sans-se
         <p style="color:#333;line-height:1.8;font-size:16px;margin-bottom:16px" id="article-intro">
           欢迎参与话题互动！在下方评论区分享你的观点和想法。
         </p>
+        
+        <!-- 假新闻内容 -->
         <div style="background:#f8f9fa;border-radius:8px;padding:16px;margin:20px 0">
           <h3 style="font-size:17px;margin:0 0 12px 0;color:#222">🔥 今日热议话题</h3>
           <div style="display:flex;gap:12px;margin-bottom:12px;align-items:flex-start">
@@ -241,6 +275,7 @@ body{font-family:-apple-system,system-ui,"PingFang SC","Microsoft YaHei",sans-se
             <p style="margin:0;color:#444;font-size:15px;line-height:1.6">春季养生指南：专家建议多吃时令蔬菜，适量运动，保持良好作息...</p>
           </div>
         </div>
+        
         <div style="background:#fff;border:1px solid #eee;border-radius:8px;padding:16px;margin:16px 0">
           <h4 style="font-size:15px;margin:0 0 10px 0;color:#666">📊 实时数据</h4>
           <div style="display:flex;justify-content:space-around;text-align:center">
@@ -258,10 +293,12 @@ body{font-family:-apple-system,system-ui,"PingFang SC","Microsoft YaHei",sans-se
             </div>
           </div>
         </div>
+        
         <p style="color:#666;line-height:1.8;font-size:14px;margin-top:20px">
           💡 <strong>温馨提示：</strong>文明发言，理性讨论。请勿发布违法违规内容，共同维护良好的交流环境。
         </p>
       </div>
+      <!-- 评论区（伪装聊天） -->
       <div class="comment-section">
         <div class="comment-header">全部评论 <span id="cmt-count">0</span></div>
         <div id="msgs"></div>
@@ -269,6 +306,7 @@ body{font-family:-apple-system,system-ui,"PingFang SC","Microsoft YaHei",sans-se
     </div>
   </div>
 
+  <!-- 输入区 -->
   <div id="input-section">
     <div id="typing-hint"></div>
     <div id="input-row">
@@ -278,41 +316,96 @@ body{font-family:-apple-system,system-ui,"PingFang SC","Microsoft YaHei",sans-se
   </div>
 </div>
 
+<!-- 状态栏 -->
 <div id="statusbar">
   <div id="pdot" class="wait"></div>
   <span id="plabel">等待连接...</span>
   <span id="status-room" style="margin-left:auto;color:#c80000"></span>
 </div>
+
+<!-- 调试面板 -->
+<div id="debug"></div>
+
+<!-- 未读按钮 -->
 <button id="unread-btn" onclick="scrollBot()">↓ 新评论</button>
+
+<!-- Toast -->
 <div id="toast"></div>
 
 <script>
 const { WebSocket } = window;
+
+// ── 全局状态 ─────────────────────────────
 let ws, myId, myName, myRoom, myAva, serverAddr;
-let peerId = null, peerName = '', peerAva = '';
-let soundOn = true, connected = false;
-const $ = id => document.getElementById(id);
+let peerId   = null;
+let peerName = '';
+let peerAva  = '';
+let soundOn  = true;
+let connected = false;
+
+// ── 工具 ─────────────────────────────────
+const $  = id => document.getElementById(id);
 const ts = () => new Date().toLocaleTimeString('zh',{hour:'2-digit',minute:'2-digit',second:'2-digit'});
-let dbgCnt = 0;
+let   dbgCnt = 0;
 function dbg(...a) {
+  // 调试信息只输出到控制台，不显示在页面上
   console.log('[chat]', ...a);
 }
+
 let toastTimer = null;
-function toast(msg){ const t = $('toast'); t.textContent = msg; t.classList.add('show'); clearTimeout(toastTimer); }
-function hideToast(){ $('toast').classList.remove('show'); }
-function showSetup(){ $('mask-overlay').classList.add('show'); }
-function hideSetup(){ $('mask-overlay').classList.remove('show'); }
+function toast(msg){
+  const t = $('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  clearTimeout(toastTimer);
+  // 只在用户看了消息后才关闭
+  toastTimer = setTimeout(hideToast, 10000); // 10秒后自动检查
+}
+
+function hideToast(){
+  $('toast').classList.remove('show');
+}
+
+function checkAndHideToast(){
+  // 如果滚动到底部且没有未读，隐藏提醒
+  if(unread === 0 && atBottom()) hideToast();
+}
+
+// ── 入口交互 ─────────────────────────────
+function showSetup(){
+  $('mask-overlay').classList.add('show');
+}
+function hideSetup(){
+  $('mask-overlay').classList.remove('show');
+}
 $('nav-social').addEventListener('click', e=>{e.preventDefault(); showSetup();});
-function updateOnlineCount(){ const base = 12800 + Math.floor(Math.random()*200); $('online-count').textContent = base.toLocaleString(); }
+
+// 假在线人数
+function updateOnlineCount(){
+  const base = 12800 + Math.floor(Math.random()*200);
+  $('online-count').textContent = base.toLocaleString();
+}
 setInterval(updateOnlineCount, 5000);
 updateOnlineCount();
-function switchTab(el, type){ document.querySelectorAll('#toolbar .tab').forEach(t=>t.classList.remove('active')); if(el) el.classList.add('active'); if(type==='social') showSetup(); }
+
+function switchTab(el, type){
+  document.querySelectorAll('#toolbar .tab').forEach(t=>t.classList.remove('active'));
+  if(el) el.classList.add('active');
+  if(type==='social'){
+    showSetup();
+  }
+}
+
+// ── 入口 ─────────────────────────────────
 function enter(){
   myName = $('i-name').value.trim() || '匿名';
   myRoom = $('i-room').value.trim().replace(/[^\w\-\u4e00-\u9fa5]/g,'') || '默认房间';
-  myAva = $('i-ava').value.trim() || '😀';
+  myAva  = $('i-ava').value.trim() || '😀';
   serverAddr = $('i-server').value.trim();
+
   myId = 'u_'+Date.now()+'_'+Math.random().toString(36).slice(2,7);
+
+  // 更新 UI
   $('mask-overlay').classList.remove('show');
   $('setup').style.display = 'none';
   $('chat-ui').style.display = 'flex';
@@ -322,71 +415,172 @@ function enter(){
   $('article-time').textContent = new Date().toLocaleDateString('zh');
   $('status-room').textContent = '房间: '+myRoom;
   $('cmt-count').textContent = '0';
+
+  // 显示输入框
   $('input-section').style.display = 'block';
   $('msgs').style.display = 'flex';
   $('statusbar').style.display = 'flex';
+
+  // 连接
   $('conn-bar').classList.add('show');
   $('conn-bar').textContent = '🔌 正在连接...';
   askNotif();
   connect();
 }
+
+// ── WebSocket ─────────────────────────────
 function connect(){
   clearTimeout(reconnTimer); clearInterval(hbTimer);
   const host = serverAddr || location.hostname;
   const proto = location.protocol === 'https:' ? 'wss:' : 'ws:';
   const isCloudflare = host.includes('trycloudflare.com');
-  const isRailway = host.includes('.railway.app');
+  const isRailway = host.includes('.railway.app') || host.includes('.railway.app');
   const wsPort = (isCloudflare || isRailway) ? '' : ':3001';
   const url = `${proto}//${host}${wsPort}/${encodeURIComponent(myRoom)}`;
-  dbg('连接:', url);
+  dbg('🔌 连接:', url);
+
   try { ws = new WebSocket(url); }
-  catch(e){ dbg('创建失败', e.message); schedReconn(); return; }
+  catch(e){ dbg('❌ 创建失败', e.message); schedReconn(); return; }
+
   ws.onopen = ()=>{
     connected = true;
-    dbg('连接成功');
+    dbg('✅ 连接成功');
     $('conn-bar').classList.remove('show');
     wsSend({ type:'identity', id:myId, name:myName, ava:myAva });
     setPdot('wait');
     hbTimer = setInterval(()=>wsSend({type:'ping'}), 25000);
     scrollBot();
   };
+
   ws.onmessage = e=>{
     let d;
     try{ d = JSON.parse(e.data); }
-    catch{ return; }
+    catch{ dbg('❌ 解析失败:', e.data); return; }
     if(!d || !d.type){ return; }
-    dbg('收到', d.type);
+    dbg('📩 收到', d.type, JSON.stringify(d).slice(0,120));
     switch(d.type){
-      case 'identity': onIdentity(d); break;
-      case 'peer_list': onPeerList(d); break;
-      case 'peer_join': onPeerJoin(d); break;
-      case 'peer_leave': onPeerLeave(d); break;
-      case 'chat': onChat(d); break;
-      case 'typing': onTypingMsg(d); break;
-      case 'pong': break;
+      case 'identity':   onIdentity(d);   break;
+      case 'peer_list':  onPeerList(d);   break;
+      case 'peer_join':  onPeerJoin(d);    break;
+      case 'peer_leave': onPeerLeave(d);   break;
+      case 'chat':       onChat(d);       break;
+      case 'typing':     onTypingMsg(d);   break;
+      case 'pong':       break;
     }
   };
+
   ws.onclose = e=>{
     connected = false;
-    dbg('断开', e.code);
+    dbg('🔌 断开', e.code, e.reason||'');
     setPdot('off');
     schedReconn();
   };
-  ws.onerror = e=>{ dbg('连接错误'); $('conn-bar').classList.add('show'); $('conn-bar').textContent = '❌ 连接失败'; };
+
+  ws.onerror = e=>{
+    dbg('⚠️ 连接错误');
+    $('conn-bar').classList.add('show');
+    $('conn-bar').textContent = '❌ 连接失败';
+  };
 }
+
 let reconnTimer = null, hbTimer = null;
-function schedReconn(){ clearTimeout(reconnTimer); $('conn-bar').classList.add('show'); $('conn-bar').textContent = '🔄 3秒后重连...'; reconnTimer = setTimeout(connect, 3000); }
-function wsSend(obj){ if(ws && ws.readyState===1) ws.send(JSON.stringify(obj)); }
-function setPdot(mode){ const dot = $('pdot'); const lbl = $('plabel'); dot.className = ''; if(mode==='on'){ dot.classList.add('on'); lbl.textContent = '🟢 '+peerName; } else if(mode==='wait'){ dot.classList.add('wait'); lbl.textContent = '⏳ 等待好友加入...'; } else { lbl.textContent = '❌ 未连接'; } }
-function onIdentity(d){ if(d.id === myId) return; peerId = d.id; peerName = d.name || '好友'; peerAva = d.ava || '😀'; setPdot('on'); sysCmt(peerAva+' '+peerName+' 加入了评论'); wsSend({ type:'identity', id:myId, name:myName, ava:myAva }); playSound('online'); toast(peerName+' 来了！'); }
-function onPeerList(d){ if(!d.peers || d.peers.length===0){ setPdot('wait'); return; } const p = d.peers[0]; peerId = p.id||peerId; peerName = p.name||'好友'; peerAva = p.ava||'😀'; setPdot('on'); sysCmt(peerAva+' '+peerName+' 已在评论中'); wsSend({ type:'identity', id:myId, name:myName, ava:myAva }); playSound('online'); }
-function onPeerJoin(d){ if(peerId && d.peer && d.peer.id===peerId) return; peerId = d.peer.id||peerId; peerName = d.peer.name||'好友'; peerAva = d.peer.ava||'😀'; setPdot('on'); sysCmt(peerAva+' '+peerName+' 加入了评论'); playSound('online'); toast(peerName+' 加入了！'); }
-function onPeerLeave(d){ const name = d.peer ? (d.peer.name||'对方') : '对方'; setPdot('wait'); peerId = null; sysCmt(name+' 离开了'); playSound('offline'); toast(name+' 离开了'); }
+function schedReconn(){
+  clearTimeout(reconnTimer);
+  $('conn-bar').classList.add('show');
+  $('conn-bar').textContent = '🔄 3秒后重连...';
+  reconnTimer = setTimeout(connect, 3000);
+}
+
+function wsSend(obj){
+  if(ws && ws.readyState===1){
+    ws.send(JSON.stringify(obj));
+  }
+}
+
+// ── 状态指示器 ───────────────────────────
+function setPdot(mode, label){
+  const dot = $('pdot');
+  const lbl = $('plabel');
+  dot.className = '';
+  if(mode==='on'){
+    dot.classList.add('on');
+    lbl.textContent = '🟢 '+peerName;
+  } else if(mode==='wait'){
+    dot.classList.add('wait');
+    lbl.textContent = '⏳ 等待好友加入...';
+  } else {
+    lbl.textContent = '❌ 未连接';
+  }
+}
+
+// ── 身份处理 ─────────────────────────────
+let hasShownJoin = false; // 防止重复显示加入消息
+function onIdentity(d){
+  if(d.id === myId) return;
+  peerId   = d.id;
+  peerName = d.name || '好友';
+  peerAva  = d.ava  || '😀';
+  setPdot('on', peerName+' 已连接');
+  if(!hasShownJoin){
+    hasShownJoin = true;
+    sysCmt(peerAva+' '+peerName+' 加入了评论');
+    playSound('online');
+    toast(peerName+' 来了！');
+  }
+  wsSend({ type:'identity', id:myId, name:myName, ava:myAva });
+}
+
+function onPeerList(d){
+  if(!d.peers || d.peers.length===0){
+    setPdot('wait');
+    return;
+  }
+  const p = d.peers[0];
+  peerId   = p.id   || peerId;
+  peerName = p.name || '好友';
+  peerAva  = p.ava  || '😀';
+  setPdot('on', peerName+' 在房间中');
+  if(!hasShownJoin){
+    hasShownJoin = true;
+    sysCmt(peerAva+' '+peerName+' 已在评论中');
+    playSound('online');
+    toast(peerName+' 来了！');
+  }
+  wsSend({ type:'identity', id:myId, name:myName, ava:myAva });
+}
+
+function onPeerJoin(d){
+  if(peerId && d.peer && d.peer.id===peerId) return;
+  peerId   = d.peer.id   || peerId;
+  peerName = d.peer.name || '好友';
+  peerAva  = d.peer.ava  || '😀';
+  setPdot('on', peerName+' 来了');
+  if(!hasShownJoin){
+    hasShownJoin = true;
+    sysCmt(peerAva+' '+peerName+' 加入了评论');
+    playSound('online');
+    toast(peerName+' 加入了！');
+  }
+}
+
+function onPeerLeave(d){
+  const name = d.peer ? (d.peer.name||'对方') : '对方';
+  setPdot('wait');
+  peerId = null;
+  hasShownJoin = false;
+  sysCmt(name+' 离开了评论');
+  playSound('offline');
+  toast(name+' 离开了');
+}
+
+// ── 聊天消息 ─────────────────────────────
 function onChat(d){
   const isMe = d.senderId === myId;
   if(!isMe){
+    // 先增加未读数，再显示消息
     unread++;
     updateUnread();
+    // 显示桌面通知
     showNotif(d.name||peerName||'好友', d.text||'');
     playSound('msg');
   }
@@ -394,37 +588,49 @@ function onChat(d){
 }
 
 function addCmt(text, ts, isOther, senderId, ava, name){
-  const el = $('msgs');
+  const el  = $('msgs');
   const div = document.createElement('div');
   const isMe = senderId === myId;
+  const displayAva = isMe ? myAva : (ava||'😀');
+  const displayName = isMe ? myName : (name||peerName||'好友');
+
   div.className = 'cmt' + (isMe ? ' own' : '');
+
   const timeStr = new Date(ts).toLocaleTimeString('zh',{hour:'2-digit',minute:'2-digit'});
-  div.innerHTML = `<div class="cmt-avatar">${isMe ? myAva : (ava||'😀')}</div><div class="cmt-body"><div class="cmt-name">${isMe ? myName : (name||peerName||'好友')} <span>${timeStr}</span></div><div class="cmt-bubble">${escHtml(text)}</div></div>`;
+  div.innerHTML = `
+    <div class="cmt-avatar">${displayAva}</div>
+    <div class="cmt-body">
+      <div class="cmt-name">${displayName} <span>${timeStr}</span></div>
+      <div class="cmt-bubble">${escHtml(text)}</div>
+    </div>
+  `;
   el.appendChild(div);
+
+  // 更新评论数
   const cnt = el.querySelectorAll('.cmt:not(.sys)').length;
   $('cmt-count').textContent = cnt;
+
+  // 始终自动滚动到底部
   scrollBot();
 }
+
 function escHtml(s){ return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
-function sysCmt(text){ const el = $('msgs'); const div = document.createElement('div'); div.className = 'sys-cmt'; div.textContent = text; el.appendChild(div); scrollBot(); }
-function scrollBot(){ const el = $('msgs'); el.scrollTop = el.scrollHeight; }
-function onKey(e){ if(e.key==='Enter' && !e.shiftKey){ e.preventDefault(); sendMsg(); } }
-function sendMsg(){ const txt = $('txt'); const val = txt.value.trim(); if(!val || !connected) return; wsSend({ type:'chat', text:val, senderId:myId, ts:Date.now(), name:myName, ava:myAva }); addCmt(val, Date.now(), false, myId, myAva, myName); txt.value = ''; autoGrow(txt); }
-function autoGrow(el){ el.style.height = 'auto'; el.style.height = Math.min(el.scrollHeight, 100)+'px'; }
-let typingShowing = false;
-function sendTyping(){ wsSend({ type:'typing', senderId:myId, name:myName }); }
-function onTypingMsg(d){ if(d.senderId === myId) return; const bar = $('typing-hint'); bar.textContent = (d.ava||'💬')+' '+(d.name||peerName||'对方')+' 正在输入...'; bar.classList.add('show'); clearTimeout(tyMsgTimer); tyMsgTimer = setTimeout(()=>{ bar.classList.remove('show'); }, 3000); }
-let tyMsgTimer = null;
-function isVisible(){ return document.visibilityState==='visible'; }
-document.addEventListener('visibilitychange', ()=>{ if(isVisible()){ scrollBot(); document.title = '今日热闻 - 聚合资讯'; } });
-let originalTitle = '今日热闻 - 聚合资讯';
-window.addEventListener('blur', ()=>{ if(unread > 0) document.title = `🔔 ${unread}条新评论 - 今日热闻`; });
-window.addEventListener('focus', ()=>{ document.title = originalTitle; unread = 0; });
+
+function sysCmt(text){
+  const el = $('msgs');
+  const div = document.createElement('div');
+  div.className = 'sys-cmt';
+  div.textContent = text;
+  el.appendChild(div);
+  if(atBottom()) setTimeout(scrollBot, 10);
+}
+
 let unread = 0;
 function updateUnread(){
   const b = $('unread-btn');
   b.textContent = unread>0 ? `↓ ${unread} 条新消息` : '↓ 新消息';
   b.classList.toggle('show', unread>0 && !atBottom());
+  // 有未读时显示提醒
   if(unread > 0) {
     const toast = $('toast');
     toast.textContent = `📩 ${unread} 条新消息`;
@@ -432,13 +638,137 @@ function updateUnread(){
     document.title = `🔔 ${unread}条新消息 - 今日热闻`;
   }
 }
-function showNotif(title, body){ document.title = '🔔 新评论 - 今日热闻'; if(Notification.permission === 'granted') new Notification(title, { body, icon:'💬' }); }
-function askNotif(){ if('Notification' in window && Notification.permission === 'default') Notification.requestPermission(); }
+
+function scrollBot(){
+  const el = $('msgs');
+  el.scrollTop = el.scrollHeight;
+  unread = 0;
+  $('unread-btn').classList.remove('show');
+  document.title = originalTitle;
+  checkAndHideToast();
+}
+
+function atBottom(){
+  const el = $('msgs');
+  return el.scrollHeight - el.scrollTop - el.clientHeight < 80;
+}
+
+$('msgs').addEventListener('scroll', ()=>updateUnread());
+
+// ── 输入 ─────────────────────────────────
+let typingTimer = null;
+function sendTyping(){
+  wsSend({ type:'typing', senderId:myId, name:myName });
+  clearTimeout(typingTimer);
+  typingTimer = setTimeout(()=>wsSend({type:'typing', senderId:myId, typing:false}), 2000);
+}
+
+function onKey(e){
+  if(e.key==='Enter' && !e.shiftKey){ e.preventDefault(); sendMsg(); }
+}
+
+function sendMsg(){
+  const txt = $('txt');
+  const val = txt.value.trim();
+  if(!val || !connected) return;
+  const msg = { type:'chat', text:val, senderId:myId, ts:Date.now(), name:myName, ava:myAva };
+  wsSend(msg);
+  addCmt(val, Date.now(), false, myId, myAva, myName);
+  txt.value = '';
+  autoGrow(txt);
+  clearTimeout(typingTimer);
+}
+
+function autoGrow(el){
+  el.style.height = 'auto';
+  el.style.height = Math.min(el.scrollHeight, 100)+'px';
+}
+
+let typingShowing = false;
+function onTypingMsg(d){
+  if(d.senderId === myId) return;
+  const bar = $('typing-hint');
+  bar.textContent = '💬 '+(d.name||peerName||'对方')+' 正在输入...';
+  bar.classList.add('show');
+  clearTimeout(tyMsgTimer);
+  tyMsgTimer = setTimeout(()=>{ bar.classList.remove('show'); }, 3000);
+}
+let tyMsgTimer = null;
+
+// ── 通知 ─────────────────────────────────
+function isVisible(){ return document.visibilityState==='visible'; }
+document.addEventListener('visibilitychange', ()=>{
+  if(isVisible()){
+    unread=0; updateUnread(); scrollBot();
+    document.title = '今日热闻 - 聚合资讯';
+  }
+});
+
+// 页面失焦时在标题显示未读数
+let originalTitle = '今日热闻 - 聚合资讯';
+window.addEventListener('blur', ()=>{
+  if(unread > 0){
+    document.title = `🔔 ${unread}条新评论 - 今日热闻`;
+  }
+});
+window.addEventListener('focus', ()=>{
+  document.title = originalTitle;
+  unread = 0;
+  updateUnread();
+});
+
+function showNotif(title, body){
+  // 浏览器标签标题闪烁提醒
+  document.title = '🔔 新评论 ('+unread+') - 今日热闻';
+  // 桌面通知
+  if(Notification.permission === 'granted'){
+    new Notification(title, { body, icon:'💬' });
+  }
+}
+
+function askNotif(){
+  if('Notification' in window && Notification.permission === 'default'){
+    Notification.requestPermission();
+  }
+}
+
+// ── 声音 ─────────────────────────────────
 let audioCtx = null;
-function getAudio(){ if(!audioCtx) audioCtx = new (window.AudioContext||window.webkitAudioContext)(); return audioCtx; }
-function beep(freq, dur, vol){ try{ const ctx = getAudio(); const o = ctx.createOscillator(); const g = ctx.createGain(); o.connect(g); g.connect(ctx.destination); o.type = 'sine'; o.frequency.value = freq; g.gain.setValueAtTime(vol, ctx.currentTime); g.gain.exponentialRampToValueAtTime(.001, ctx.currentTime+dur); o.start(); o.stop(ctx.currentTime+dur+.05); } catch(e){} }
-function playSound(type){ if(!soundOn) return; try{ if(type==='online') beep(880, .15, .3); else if(type==='offline') beep(440, .2, .2); else if(type==='msg') beep(660, .1, .2), setTimeout(()=>beep(880,.1,.15),120); }catch(e){} }
-function toggleSound(){ soundOn = !soundOn; $('sound-btn').textContent = soundOn ? '🔇' : '🔊'; $('sound-btn').style.color = soundOn ? '#666' : '#c80000'; localStorage.setItem('chatSoundOn', soundOn); }
+function getAudio(){
+  if(!audioCtx) audioCtx = new (window.AudioContext||window.webkitAudioContext)();
+  return audioCtx;
+}
+
+function beep(freq, dur, vol){
+  try{
+    const ctx = getAudio();
+    const o = ctx.createOscillator();
+    const g = ctx.createGain();
+    o.connect(g); g.connect(ctx.destination);
+    o.type = 'sine';
+    o.frequency.value = freq;
+    g.gain.setValueAtTime(vol, ctx.currentTime);
+    g.gain.exponentialRampToValueAtTime(.001, ctx.currentTime+dur);
+    o.start(); o.stop(ctx.currentTime+dur+.05);
+  } catch(e){}
+}
+
+function playSound(type){
+  if(!soundOn) return;
+  try{
+    if(type==='online')  beep(880, .15, .3);
+    else if(type==='offline') beep(440, .2, .2);
+    else if(type==='msg')  beep(660, .1, .2), setTimeout(()=>beep(880,.1,.15),120);
+  }catch(e){}
+}
+
+function toggleSound(){
+  soundOn = !soundOn;
+  $('sound-btn').textContent = soundOn ? '🔇' : '🔊';
+  $('sound-btn').style.color = soundOn ? '#666' : '#c80000';
+  localStorage.setItem('chatSoundOn', soundOn);
+}
+
 const savedSound = localStorage.getItem('chatSoundOn');
 if(savedSound !== null) { soundOn = savedSound==='true'; toggleSound(); }
 </script>
