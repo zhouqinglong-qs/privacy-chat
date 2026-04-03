@@ -1,0 +1,422 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>今日热闻 - 聚合资讯</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:-apple-system,system-ui,"PingFang SC","Microsoft YaHei",sans-serif;background:#f0f2f5;color:#1a1a1a;height:100vh;display:flex;flex-direction:column}
+
+/* 顶部导航 */
+#header{background:#c80000;padding:0 16px;display:flex;align-items:center;height:50px;box-shadow:0 2px 8px rgba(0,0,0,.12);position:sticky;top:0;z-index:100}
+#header .logo{color:#fff;font-size:20px;font-weight:700;letter-spacing:-0.5px}
+#header .logo span{color:#ffd700}
+#header .nav{margin-left:auto;display:flex;gap:20px}
+#header .nav a{color:rgba(255,255,255,.85);font-size:13px;text-decoration:none;transition:color .2s}
+#header .nav a:hover,#header .nav a.active{color:#fff;font-weight:500}
+#header .search-btn{background:rgba(255,255,255,.15);border:none;border-radius:16px;padding:5px 14px;color:rgba(255,255,255,.9);font-size:12px;cursor:pointer;margin-left:16px}
+
+/* 入口 */
+#setup{position:fixed;inset:0;background:linear-gradient(180deg,#f0f2f5 0%,#e4e7eb 100%);display:flex;flex-direction:column;align-items:center;padding-top:40px;overflow-y:auto}
+.feed-banner{width:100%;max-width:680px;background:#fff;border-radius:12px;padding:20px;margin-bottom:12px;box-shadow:0 1px 3px rgba(0,0,0,.08)}
+.feed-banner .tag{background:#c80000;color:#fff;font-size:10px;padding:2px 8px;border-radius:3px;font-weight:600;display:inline-block;margin-bottom:8px}
+.feed-banner h2{font-size:20px;line-height:1.4;color:#1a1a1a;margin-bottom:10px}
+.feed-banner .meta{font-size:11px;color:#999}
+.feed-card{width:100%;max-width:680px;background:#fff;border-radius:12px;padding:16px;margin-bottom:10px;box-shadow:0 1px 3px rgba(0,0,0,.08);display:flex;gap:12px;cursor:pointer;transition:box-shadow .2s}
+.feed-card:hover{box-shadow:0 4px 12px rgba(0,0,0,.1)}
+.feed-card .thumb{width:90px;height:70px;background:linear-gradient(135deg,#667eea,#764ba2);border-radius:8px;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:28px}
+.feed-card .info{flex:1;min-width:0}
+.feed-card .title{font-size:14px;font-weight:600;line-height:1.4;color:#1a1a1a;margin-bottom:6px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.feed-card .footer{font-size:11px;color:#999;display:flex;gap:10px}
+
+/* 伪装入口 */
+#mask-overlay{position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:200;display:none;justify-content:center;align-items:center;padding:20px}
+#mask-overlay.show{display:flex}
+.mask-box{background:#fff;border-radius:16px;padding:28px;width:min(380px,95vw);box-shadow:0 20px 60px rgba(0,0,0,.3)}
+.mask-box h3{font-size:18px;margin-bottom:4px;color:#1a1a1a}
+.mask-box p{font-size:12px;color:#888;margin-bottom:20px}
+.field{display:flex;flex-direction:column;gap:4px;margin-bottom:14px}
+.field label{font-size:12px;color:#666;padding-left:2px;font-weight:500}
+.field input{background:#f5f6f8;border:1px solid #e0e0e0;border-radius:8px;padding:10px 12px;color:#1a1a1a;font-size:14px;outline:none;transition:border-color .2s}
+.field input:focus{border-color:#c80000}
+.field .hint{font-size:10px;color:#aaa;padding-left:2px}
+.mask-hint{background:#fff3f3;border:1px solid #ffd0d0;border-radius:8px;padding:10px 12px;font-size:12px;color:#c80000;margin-bottom:16px;line-height:1.5}
+.btn-enter{background:#c80000;color:#fff;border:none;border-radius:10px;padding:13px;font-size:15px;font-weight:600;cursor:pointer;width:100%;transition:background .2s}
+.btn-enter:hover{background:#a80000}
+.close-btn{position:absolute;top:12px;right:16px;background:none;border:none;font-size:20px;color:#999;cursor:pointer}
+
+/* 连接状态条 */
+#conn-bar{background:#fff3f3;color:#c80000;padding:8px 16px;font-size:13px;text-align:center;display:none;border-bottom:1px solid #ffd0d0}
+#conn-bar.show{display:block}
+
+/* 主界面 */
+#chat-ui{flex:1;display:flex;flex-direction:column;min-height:0}
+#chat-ui{display:none}
+
+/* 工具栏 */
+#toolbar{background:#fff;border-bottom:1px solid #eee;padding:10px 16px;display:flex;align-items:center;gap:8px}
+#toolbar .tab{font-size:13px;color:#666;padding:6px 12px;border-radius:16px;cursor:pointer;transition:all .2s}
+#toolbar .tab:hover{background:#f0f0f0}
+#toolbar .tab.active{background:#c80000;color:#fff;font-weight:500}
+#toolbar .user-info{margin-left:auto;display:flex;align-items:center;gap:8px;font-size:13px;color:#666}
+#toolbar .avatar{width:28px;height:28px;background:linear-gradient(135deg,#667eea,#764ba2);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:14px}
+#toolbar .status-dot{width:8px;height:8px;background:#4ade80;border-radius:50%}
+#toolbar .sound-btn{background:#f0f0f0;border:none;border-radius:6px;padding:5px 10px;font-size:12px;cursor:pointer;color:#666}
+
+/* 文章区 */
+#article{flex:1;max-width:760px;margin:0 auto;padding:24px 20px 80px}
+.article-header{border-bottom:1px solid #eee;padding-bottom:16px;margin-bottom:20px}
+.article-tag{background:#c80000;color:#fff;font-size:10px;padding:3px 8px;border-radius:3px;font-weight:600;display:inline-block;margin-bottom:12px}
+.article-title{font-size:24px;line-height:1.4;font-weight:700;color:#1a1a1a;margin-bottom:12px}
+.article-meta{font-size:12px;color:#999;display:flex;gap:16px;align-items:center}
+.article-meta .src{color:#c80000;font-weight:500}
+.article-body{min-height:200px}
+.comment-section{margin-top:24px;border-top:1px solid #eee;padding-top:20px}
+.comment-header{font-size:15px;font-weight:600;color:#1a1a1a;margin-bottom:16px}
+.comment-header span{color:#c80000}
+
+/* 评论区 */
+#msgs{flex:1;overflow-y:auto;padding:0;display:flex;flex-direction:column;gap:0}
+#msgs{display:none}
+.comment-list{flex:1;overflow-y:auto;padding:16px}
+.cmt{display:flex;gap:10px;padding:12px 0;border-bottom:1px solid #f5f5f5;animation:slideIn .3s ease}
+@keyframes slideIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+.cmt.own{flex-direction:row-reverse}
+.cmt-avatar{width:36px;height:36px;background:linear-gradient(135deg,#667eea,#764ba2);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0}
+.cmt-body{flex:1;min-width:0;max-width:75%}
+.cmt-name{font-size:12px;color:#666;margin-bottom:4px;font-weight:500}
+.cmt-name span{color:#999;font-weight:400;margin-left:8px}
+.cmt-bubble{background:#f5f6f8;border-radius:12px;padding:10px 14px;font-size:14px;line-height:1.5;word-break:break-all;position:relative}
+.cmt.own .cmt-bubble{background:#c80000;color:#fff;border-bottom-right-radius:4px}
+.cmt:not(.own) .cmt-bubble{border-bottom-left-radius:4px}
+.sys-cmt{text-align:center;color:#bbb;font-size:12px;padding:8px 0;background:#fafafa}
+
+/* 输入框 */
+#input-section{flex-shrink:0;background:#fff;border-top:1px solid #eee;padding:12px 16px}
+#input-section{display:none}
+#typing-hint{font-size:12px;color:#c80000;height:18px;margin-bottom:6px;display:none}
+#typing-hint.show{display:block}
+#input-row{display:flex;gap:10px;align-items:flex-end}
+#txt{background:#f5f6f8;border:1px solid #e8e8e8;border-radius:20px;padding:10px 16px;color:#1a1a1a;font-size:14px;flex:1;resize:none;outline:none;max-height:100px;line-height:1.5}
+#txt:focus{border-color:#c80000;background:#fff}
+#send-btn{background:#c80000;color:#fff;border:none;border-radius:50%;width:42px;height:42px;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0;transition:background .2s}
+#send-btn:hover{background:#a80000}
+#send-btn:disabled{background:#ccc;cursor:not-allowed}
+
+/* 状态栏 */
+#statusbar{background:#fff;padding:6px 16px;display:flex;align-items:center;gap:8px;font-size:11px;color:#999;border-top:1px solid #eee;display:none}
+#pdot{width:6px;height:6px;border-radius:50%;background:#ccc;flex-shrink:0}
+#pdot.on{background:#4ade80}
+#pdot.wait{background:#facc15}
+
+/* 未读提示 */
+#unread-btn{position:fixed;bottom:90px;left:50%;transform:translateX(-50%);background:#c80000;color:#fff;border:none;border-radius:20px;padding:8px 20px;font-size:13px;cursor:pointer;display:none;box-shadow:0 4px 12px rgba(200,0,0,.3)}
+#unread-btn.show{display:block}
+
+/* Toast */
+#toast{position:fixed;top:50px;left:50%;transform:translateX(-50%);background:#c80000;color:#fff;padding:10px 24px;border-radius:0 0 16px 16px;font-size:13px;opacity:0;transition:all .3s;pointer-events:none;z-index:300;display:none;font-weight:500}
+#toast.show{display:block;opacity:1}
+</style>
+</head>
+<body>
+
+<div id="header">
+  <div class="logo">今日<span>热闻</span></div>
+  <nav class="nav">
+    <a href="#" class="active">推荐</a>
+    <a href="#">热点</a>
+    <a href="#" id="nav-social">广场</a>
+    <a href="#">视频</a>
+  </nav>
+  <button class="search-btn">🔍 搜索</button>
+</div>
+
+<div id="setup">
+  <div class="feed-banner" onclick="showSetup()">
+    <div class="tag">置顶</div>
+    <h2>欢迎使用今日热闻 - 点击这里进入私密广场</h2>
+    <div class="meta">📰 官方公告 · <span id="online-count">12,847</span> 人正在浏览</div>
+  </div>
+  <div class="feed-card" onclick="showSetup()">
+    <div class="thumb">📊</div>
+    <div class="info">
+      <div class="title">今日A股三大指数集体收涨，沪指重回3400点</div>
+      <div class="footer"><span>财经频道</span><span>3小时前</span></div>
+    </div>
+  </div>
+  <div class="feed-card" onclick="showSetup()">
+    <div class="thumb">🌤️</div>
+    <div class="info">
+      <div class="title">未来三天全国大部地区气温回升，北方沙尘天气减弱</div>
+      <div class="footer"><span>天气频道</span><span>5小时前</span></div>
+    </div>
+  </div>
+  <div class="feed-card" onclick="showSetup()">
+    <div class="thumb">💻</div>
+    <div class="info">
+      <div class="title">苹果开发者大会WWDC前瞻：iOS 19界面设计曝光</div>
+      <div class="footer"><span>科技频道</span><span>6小时前</span></div>
+    </div>
+  </div>
+  <div class="feed-card" onclick="showSetup()">
+    <div class="thumb">🎬</div>
+    <div class="info">
+      <div class="title">2026春节档电影票房突破80亿，创历史新高</div>
+      <div class="footer"><span>娱乐频道</span><span>昨天</span></div>
+    </div>
+  </div>
+</div>
+
+<div id="mask-overlay">
+  <div class="mask-box" style="position:relative">
+    <button class="close-btn" onclick="hideSetup()">✕</button>
+    <h3>👤 个人设置</h3>
+    <p>设置你的显示信息</p>
+    <div class="mask-hint" style="background:#f5f5f5;border-color:#ddd;color:#666">💡 设置完成后即可参与互动</div>
+    <div class="field">
+      <label>显示名称</label>
+      <input id="i-name" placeholder="输入你的昵称" maxlength="20">
+    </div>
+    <div class="field">
+      <label>话题标签</label>
+      <input id="i-room" placeholder="输入话题标签" maxlength="30">
+      <span class="hint">与好友使用相同的标签即可互动</span>
+    </div>
+    <div class="field">
+      <label>头像</label>
+      <input id="i-ava" placeholder="选择头像" maxlength="4" value="😀">
+    </div>
+    <div class="field">
+      <label>服务器（可选）</label>
+      <input id="i-server" placeholder="留空自动检测">
+    </div>
+    <button class="btn-enter" onclick="enter()">确认设置 →</button>
+  </div>
+</div>
+
+<div id="conn-bar">🔄 正在连接...</div>
+
+<div id="chat-ui">
+  <div id="toolbar">
+    <div class="tab active" onclick="switchTab(this)">推荐</div>
+    <div class="tab" onclick="switchTab(this)">热点</div>
+    <div class="tab" onclick="switchTab(this,'social')" style="color:#c80000;font-weight:600">广场</div>
+    <div class="tab" onclick="switchTab(this)">视频</div>
+    <div class="user-info">
+      <div class="status-dot"></div>
+      <span id="tb-name">-</span>
+      <div class="avatar" id="tb-ava">😀</div>
+    </div>
+    <button class="sound-btn" id="sound-btn" onclick="toggleSound()">🔇</button>
+  </div>
+
+  <div id="main-content">
+    <div id="article">
+      <div class="article-header">
+        <div class="article-tag">互动</div>
+        <h1 class="article-title" id="article-title">话题互动区</h1>
+        <div class="article-meta">
+          <span class="src">互动区</span>
+          <span id="article-room">标签: -</span>
+          <span id="article-time"></span>
+        </div>
+      </div>
+      <div class="article-body">
+        <p style="color:#333;line-height:1.8;font-size:16px;margin-bottom:16px" id="article-intro">
+          欢迎参与话题互动！在下方评论区分享你的观点和想法。
+        </p>
+        <div style="background:#f8f9fa;border-radius:8px;padding:16px;margin:20px 0">
+          <h3 style="font-size:17px;margin:0 0 12px 0;color:#222">🔥 今日热议话题</h3>
+          <div style="display:flex;gap:12px;margin-bottom:12px;align-items:flex-start">
+            <span style="background:#c80000;color:#fff;padding:2px 8px;border-radius:4px;font-size:12px;flex-shrink:0">热</span>
+            <p style="margin:0;color:#444;font-size:15px;line-height:1.6">人工智能技术在医疗领域的应用取得新突破，多家医院开始试点AI辅助诊断系统...</p>
+          </div>
+          <div style="display:flex;gap:12px;margin-bottom:12px;align-items:flex-start">
+            <span style="background:#ff6b35;color:#fff;padding:2px 8px;border-radius:4px;font-size:12px;flex-shrink:0">新</span>
+            <p style="margin:0;color:#444;font-size:15px;line-height:1.6">新能源汽车市场持续升温，多家车企发布新款车型，续航里程突破800公里...</p>
+          </div>
+          <div style="display:flex;gap:12px;align-items:flex-start">
+            <span style="background:#1890ff;color:#fff;padding:2px 8px;border-radius:4px;font-size:12px;flex-shrink:0">荐</span>
+            <p style="margin:0;color:#444;font-size:15px;line-height:1.6">春季养生指南：专家建议多吃时令蔬菜，适量运动，保持良好作息...</p>
+          </div>
+        </div>
+        <div style="background:#fff;border:1px solid #eee;border-radius:8px;padding:16px;margin:16px 0">
+          <h4 style="font-size:15px;margin:0 0 10px 0;color:#666">📊 实时数据</h4>
+          <div style="display:flex;justify-content:space-around;text-align:center">
+            <div>
+              <div style="font-size:24px;font-weight:bold;color:#c80000">12.5万</div>
+              <div style="font-size:12px;color:#999">今日阅读</div>
+            </div>
+            <div>
+              <div style="font-size:24px;font-weight:bold;color:#1890ff">3,280</div>
+              <div style="font-size:12px;color:#999">参与讨论</div>
+            </div>
+            <div>
+              <div style="font-size:24px;font-weight:bold;color:#52c41a">89%</div>
+              <div style="font-size:12px;color:#999">好评率</div>
+            </div>
+          </div>
+        </div>
+        <p style="color:#666;line-height:1.8;font-size:14px;margin-top:20px">
+          💡 <strong>温馨提示：</strong>文明发言，理性讨论。请勿发布违法违规内容，共同维护良好的交流环境。
+        </p>
+      </div>
+      <div class="comment-section">
+        <div class="comment-header">全部评论 <span id="cmt-count">0</span></div>
+        <div id="msgs"></div>
+      </div>
+    </div>
+  </div>
+
+  <div id="input-section">
+    <div id="typing-hint"></div>
+    <div id="input-row">
+      <textarea id="txt" rows="1" placeholder="写下你的评论..." onkeydown="onKey(event)" oninput="autoGrow(this); sendTyping()"></textarea>
+      <button id="send-btn" onclick="sendMsg()">➤</button>
+    </div>
+  </div>
+</div>
+
+<div id="statusbar">
+  <div id="pdot" class="wait"></div>
+  <span id="plabel">等待连接...</span>
+  <span id="status-room" style="margin-left:auto;color:#c80000"></span>
+</div>
+<button id="unread-btn" onclick="scrollBot()">↓ 新评论</button>
+<div id="toast"></div>
+
+<script>
+const { WebSocket } = window;
+let ws, myId, myName, myRoom, myAva, serverAddr;
+let peerId = null, peerName = '', peerAva = '';
+let soundOn = true, connected = false;
+const $ = id => document.getElementById(id);
+const ts = () => new Date().toLocaleTimeString('zh',{hour:'2-digit',minute:'2-digit',second:'2-digit'});
+let dbgCnt = 0;
+function dbg(...a) { console.log('[chat]', ...a); }
+let toastTimer = null;
+function toast(msg){ const t = $('toast'); t.textContent = msg; t.classList.add('show'); clearTimeout(toastTimer); }
+function hideToast(){ $('toast').classList.remove('show'); }
+function showSetup(){ $('mask-overlay').classList.add('show'); }
+function hideSetup(){ $('mask-overlay').classList.remove('show'); }
+$('nav-social').addEventListener('click', e=>{e.preventDefault(); showSetup();});
+function updateOnlineCount(){ const base = 12800 + Math.floor(Math.random()*200); $('online-count').textContent = base.toLocaleString(); }
+setInterval(updateOnlineCount, 5000);
+updateOnlineCount();
+function switchTab(el, type){ document.querySelectorAll('#toolbar .tab').forEach(t=>t.classList.remove('active')); if(el) el.classList.add('active'); if(type==='social') showSetup(); }
+function enter(){
+  myName = $('i-name').value.trim() || '匿名';
+  myRoom = $('i-room').value.trim().replace(/[^\w\-\u4e00-\u9fa5]/g,'') || '默认房间';
+  myAva = $('i-ava').value.trim() || '😀';
+  serverAddr = $('i-server').value.trim();
+  myId = 'u_'+Date.now()+'_'+Math.random().toString(36).slice(2,7);
+  $('mask-overlay').classList.remove('show');
+  $('setup').style.display = 'none';
+  $('chat-ui').style.display = 'flex';
+  $('tb-name').textContent = myName;
+  $('tb-ava').textContent = myAva;
+  $('article-room').textContent = '房间: '+myRoom;
+  $('article-time').textContent = new Date().toLocaleDateString('zh');
+  $('status-room').textContent = '房间: '+myRoom;
+  $('cmt-count').textContent = '0';
+  $('input-section').style.display = 'block';
+  $('msgs').style.display = 'flex';
+  $('statusbar').style.display = 'flex';
+  $('conn-bar').classList.add('show');
+  $('conn-bar').textContent = '🔌 正在连接...';
+  askNotif();
+  connect();
+}
+function connect(){
+  clearTimeout(reconnTimer); clearInterval(hbTimer);
+  const host = serverAddr || location.hostname;
+  const proto = location.protocol === 'https:' ? 'wss:' : 'ws:';
+  const isCloudflare = host.includes('trycloudflare.com');
+  const wsPort = isCloudflare ? '' : ':3001';
+  const url = `${proto}//${host}${wsPort}/${encodeURIComponent(myRoom)}`;
+  dbg('连接:', url);
+  try { ws = new WebSocket(url); }
+  catch(e){ dbg('创建失败', e.message); schedReconn(); return; }
+  ws.onopen = ()=>{
+    connected = true;
+    dbg('连接成功');
+    $('conn-bar').classList.remove('show');
+    wsSend({ type:'identity', id:myId, name:myName, ava:myAva });
+    setPdot('wait');
+    hbTimer = setInterval(()=>wsSend({type:'ping'}), 25000);
+    scrollBot();
+  };
+  ws.onmessage = e=>{
+    let d;
+    try{ d = JSON.parse(e.data); }
+    catch{ return; }
+    if(!d || !d.type){ return; }
+    dbg('收到', d.type);
+    switch(d.type){
+      case 'identity': onIdentity(d); break;
+      case 'peer_list': onPeerList(d); break;
+      case 'peer_join': onPeerJoin(d); break;
+      case 'peer_leave': onPeerLeave(d); break;
+      case 'chat': onChat(d); break;
+      case 'typing': onTypingMsg(d); break;
+      case 'pong': break;
+    }
+  };
+  ws.onclose = e=>{
+    connected = false;
+    dbg('断开', e.code);
+    setPdot('off');
+    schedReconn();
+  };
+  ws.onerror = e=>{ dbg('连接错误'); $('conn-bar').classList.add('show'); $('conn-bar').textContent = '❌ 连接失败'; };
+}
+let reconnTimer = null, hbTimer = null;
+function schedReconn(){ clearTimeout(reconnTimer); $('conn-bar').classList.add('show'); $('conn-bar').textContent = '🔄 3秒后重连...'; reconnTimer = setTimeout(connect, 3000); }
+function wsSend(obj){ if(ws && ws.readyState===1) ws.send(JSON.stringify(obj)); }
+function setPdot(mode){ const dot = $('pdot'); const lbl = $('plabel'); dot.className = ''; if(mode==='on'){ dot.classList.add('on'); lbl.textContent = '🟢 '+peerName; } else if(mode==='wait'){ dot.classList.add('wait'); lbl.textContent = '⏳ 等待好友加入...'; } else { lbl.textContent = '❌ 未连接'; } }
+function onIdentity(d){ if(d.id === myId) return; peerId = d.id; peerName = d.name || '好友'; peerAva = d.ava || '😀'; setPdot('on'); sysCmt(peerAva+' '+peerName+' 加入了评论'); wsSend({ type:'identity', id:myId, name:myName, ava:myAva }); playSound('online'); toast(peerName+' 来了！'); }
+function onPeerList(d){ if(!d.peers || d.peers.length===0){ setPdot('wait'); return; } const p = d.peers[0]; peerId = p.id||peerId; peerName = p.name||'好友'; peerAva = p.ava||'😀'; setPdot('on'); sysCmt(peerAva+' '+peerName+' 已在评论中'); wsSend({ type:'identity', id:myId, name:myName, ava:myAva }); playSound('online'); }
+function onPeerJoin(d){ if(peerId && d.peer && d.peer.id===peerId) return; peerId = d.peer.id||peerId; peerName = d.peer.name||'好友'; peerAva = d.peer.ava||'😀'; setPdot('on'); sysCmt(peerAva+' '+peerName+' 加入了评论'); playSound('online'); toast(peerName+' 加入了！'); }
+function onPeerLeave(d){ const name = d.peer ? (d.peer.name||'对方') : '对方'; setPdot('wait'); peerId = null; sysCmt(name+' 离开了'); playSound('offline'); toast(name+' 离开了'); }
+function onChat(d){ const isMe = d.senderId === myId; addCmt(d.text||'', d.ts||Date.now(), !isMe, d.senderId||'', d.ava||'', d.name||''); if(!isMe) playSound('msg'); }
+function addCmt(text, ts, isOther, senderId, ava, name){
+  const el = $('msgs');
+  const div = document.createElement('div');
+  const isMe = senderId === myId;
+  div.className = 'cmt' + (isMe ? ' own' : '');
+  const timeStr = new Date(ts).toLocaleTimeString('zh',{hour:'2-digit',minute:'2-digit'});
+  div.innerHTML = `<div class="cmt-avatar">${isMe ? myAva : (ava||'😀')}</div><div class="cmt-body"><div class="cmt-name">${isMe ? myName : (name||peerName||'好友')} <span>${timeStr}</span></div><div class="cmt-bubble">${escHtml(text)}</div></div>`;
+  el.appendChild(div);
+  const cnt = el.querySelectorAll('.cmt:not(.sys)').length;
+  $('cmt-count').textContent = cnt;
+  scrollBot();
+}
+function escHtml(s){ return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+function sysCmt(text){ const el = $('msgs'); const div = document.createElement('div'); div.className = 'sys-cmt'; div.textContent = text; el.appendChild(div); scrollBot(); }
+function scrollBot(){ const el = $('msgs'); el.scrollTop = el.scrollHeight; }
+function onKey(e){ if(e.key==='Enter' && !e.shiftKey){ e.preventDefault(); sendMsg(); } }
+function sendMsg(){ const txt = $('txt'); const val = txt.value.trim(); if(!val || !connected) return; wsSend({ type:'chat', text:val, senderId:myId, ts:Date.now(), name:myName, ava:myAva }); addCmt(val, Date.now(), false, myId, myAva, myName); txt.value = ''; autoGrow(txt); }
+function autoGrow(el){ el.style.height = 'auto'; el.style.height = Math.min(el.scrollHeight, 100)+'px'; }
+let typingShowing = false;
+function sendTyping(){ wsSend({ type:'typing', senderId:myId, name:myName }); }
+function onTypingMsg(d){ if(d.senderId === myId) return; const bar = $('typing-hint'); bar.textContent = (d.ava||'💬')+' '+(d.name||peerName||'对方')+' 正在输入...'; bar.classList.add('show'); clearTimeout(tyMsgTimer); tyMsgTimer = setTimeout(()=>{ bar.classList.remove('show'); }, 3000); }
+let tyMsgTimer = null;
+function isVisible(){ return document.visibilityState==='visible'; }
+document.addEventListener('visibilitychange', ()=>{ if(isVisible()){ scrollBot(); document.title = '今日热闻 - 聚合资讯'; } });
+let originalTitle = '今日热闻 - 聚合资讯';
+window.addEventListener('blur', ()=>{ if(unread > 0) document.title = `🔔 ${unread}条新评论 - 今日热闻`; });
+window.addEventListener('focus', ()=>{ document.title = originalTitle; unread = 0; });
+let unread = 0;
+function showNotif(title, body){ document.title = '🔔 新评论 - 今日热闻'; if(Notification.permission === 'granted') new Notification(title, { body, icon:'💬' }); }
+function askNotif(){ if('Notification' in window && Notification.permission === 'default') Notification.requestPermission(); }
+let audioCtx = null;
+function getAudio(){ if(!audioCtx) audioCtx = new (window.AudioContext||window.webkitAudioContext)(); return audioCtx; }
+function beep(freq, dur, vol){ try{ const ctx = getAudio(); const o = ctx.createOscillator(); const g = ctx.createGain(); o.connect(g); g.connect(ctx.destination); o.type = 'sine'; o.frequency.value = freq; g.gain.setValueAtTime(vol, ctx.currentTime); g.gain.exponentialRampToValueAtTime(.001, ctx.currentTime+dur); o.start(); o.stop(ctx.currentTime+dur+.05); } catch(e){} }
+function playSound(type){ if(!soundOn) return; try{ if(type==='online') beep(880, .15, .3); else if(type==='offline') beep(440, .2, .2); else if(type==='msg') beep(660, .1, .2), setTimeout(()=>beep(880,.1,.15),120); }catch(e){} }
+function toggleSound(){ soundOn = !soundOn; $('sound-btn').textContent = soundOn ? '🔇' : '🔊'; $('sound-btn').style.color = soundOn ? '#666' : '#c80000'; localStorage.setItem('chatSoundOn', soundOn); }
+const savedSound = localStorage.getItem('chatSoundOn');
+if(savedSound !== null) { soundOn = savedSound==='true'; toggleSound(); }
+</script>
+</body>
+</html>
