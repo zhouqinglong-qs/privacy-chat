@@ -81,7 +81,7 @@ body{font-family:-apple-system,system-ui,"PingFang SC","Microsoft YaHei",sans-se
 
 /* 评论区（伪装消息） */
 #msgs{flex:1;overflow-y:auto;padding:0;display:flex;flex-direction:column;gap:0}
-#msgs{display:none}
+/* 注意：js 中通过 style.display 控制显隐，不要在这里重复设置 */
 .comment-list{flex:1;overflow-y:auto;padding:16px}
 .cmt{display:flex;gap:10px;padding:12px 0;border-bottom:1px solid #f5f5f5;animation:slideIn .3s ease}
 @keyframes slideIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
@@ -665,6 +665,7 @@ function connect(){
       case 'peer_leave': onPeerLeave(d);   break;
       case 'chat':       onChat(d);       break;
       case 'typing':     onTypingMsg(d);   break;
+      case 'history':    onHistory(d);     break;
       case 'pong':       break;
     }
   };
@@ -785,6 +786,23 @@ function onChat(d){
     playSound('msg');
   }
   addCmt(d.text||'', d.ts||Date.now(), !isMe, d.senderId||'', d.ava||'', d.name||'');
+}
+
+// ── 历史消息（离线重连后获取） ───────────
+function onHistory(d){
+  if(!d.messages || !Array.isArray(d.messages)) return;
+  dbg('📜 收到历史消息', d.messages.length, '条');
+  // 清空现有消息
+  $('msgs').innerHTML = '';
+  // 按顺序添加历史消息
+  d.messages.forEach(msg => {
+    addCmt(msg.text||'', msg.ts||Date.now(), msg.senderId !== myId, msg.senderId||'', msg.ava||'', msg.name||'');
+  });
+  unread = 0;
+  updateUnread();
+  if(d.messages.length > 0){
+    toast('已同步 ' + d.messages.length + ' 条历史消息');
+  }
 }
 
 function addCmt(text, ts, isOther, senderId, ava, name){
@@ -915,6 +933,19 @@ window.addEventListener('focus', ()=>{
   document.title = originalTitle;
   unread = 0;
   updateUnread();
+});
+
+// 移动端优化：页面可见性变化时强制检查滚动和连接
+document.addEventListener('visibilitychange', ()=>{
+  if(isVisible()){
+    // 页面重新可见时，强制滚动到底部并显示最新消息
+    setTimeout(scrollBot, 100);
+    // 同时检查连接状态
+    if(!connected && ws){
+      dbg('🔄 页面可见，检测到断开，尝试重连...');
+      schedReconn();
+    }
+  }
 });
 
 function showNotif(title, body){
