@@ -127,6 +127,206 @@ body{font-family:-apple-system,system-ui,"PingFang SC","Microsoft YaHei",sans-se
 /* Toast - 优化样式，避开顶部导航 */
 #toast{position:fixed;top:70px;left:50%;transform:translateX(-50%);background:#c80000;color:#fff;padding:12px 28px;border-radius:24px;font-size:14px;opacity:0;transition:all .3s ease;pointer-events:none;z-index:1000;display:none;font-weight:500;box-shadow:0 4px 20px rgba(200,0,0,.4);max-width:90vw;text-align:center}
 #toast.show{display:block;opacity:1}
+
+/* ===================== */
+/* 移动端适配 */
+/* ===================== */
+@media screen and (max-width: 768px) {
+  /* 顶部导航 - 手机上更紧凑 */
+  #header {
+    height: 46px;
+    padding: 0 12px;
+  }
+  #header .logo {
+    font-size: 18px;
+  }
+  #header .nav {
+    gap: 12px;
+  }
+  #header .nav a {
+    font-size: 12px;
+  }
+  #header .search-btn {
+    display: none; /* 手机上隐藏搜索按钮 */
+  }
+
+  /* 新闻列表 - 手机全宽 */
+  #setup {
+    padding: 12px;
+    padding-bottom: 80px;
+  }
+  .feed-banner,
+  .feed-card {
+    max-width: 100%;
+    border-radius: 8px;
+    padding: 14px;
+    margin-bottom: 8px;
+  }
+  .feed-banner h2 {
+    font-size: 16px;
+  }
+  .feed-card .thumb {
+    width: 70px;
+    height: 56px;
+    font-size: 22px;
+  }
+  .feed-card .title {
+    font-size: 13px;
+  }
+
+  /* 设置弹窗 - 手机全宽 */
+  .mask-box {
+    padding: 20px;
+    border-radius: 12px;
+  }
+  .mask-box h3 {
+    font-size: 16px;
+  }
+  .field input {
+    padding: 12px;
+    font-size: 15px; /* 防止 iOS 缩放 */
+  }
+
+  /* 文章区 - 手机全宽 */
+  #article {
+    padding: 16px 12px;
+    padding-bottom: 100px; /* 为输入框留空间 */
+  }
+  .article-title {
+    font-size: 18px;
+  }
+  .article-meta {
+    font-size: 11px;
+    gap: 10px;
+    flex-wrap: wrap;
+  }
+
+  /* 工具栏 - 手机适配 */
+  #toolbar {
+    padding: 8px 12px;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+  #toolbar .tab {
+    padding: 5px 10px;
+    font-size: 12px;
+    white-space: nowrap;
+  }
+  #toolbar .user-info {
+    margin-left: 8px;
+  }
+  #toolbar .avatar {
+    width: 24px;
+    height: 24px;
+    font-size: 12px;
+  }
+
+  /* 消息气泡 - 手机适配 */
+  .cmt {
+    padding: 8px 0;
+  }
+  .cmt-avatar {
+    width: 32px;
+    height: 32px;
+    font-size: 14px;
+  }
+  .cmt-body {
+    max-width: 80%;
+  }
+  .cmt-bubble {
+    padding: 8px 12px;
+    font-size: 14px;
+  }
+  .cmt-name {
+    font-size: 11px;
+  }
+
+  /* 输入区 - 手机适配 */
+  #input-section {
+    padding: 10px 12px;
+    padding-bottom: max(10px, env(safe-area-inset-bottom));
+  }
+  #txt {
+    padding: 10px 14px;
+    font-size: 16px; /* 防止 iOS 缩放 */
+  }
+  #send-btn {
+    width: 40px;
+    height: 40px;
+    font-size: 16px;
+  }
+
+  /* 状态栏 - 手机隐藏 */
+  #statusbar {
+    display: none !important;
+  }
+
+  /* 未读按钮 - 手机适配 */
+  #unread-btn {
+    bottom: 80px;
+    padding: 8px 18px;
+    font-size: 13px;
+  }
+
+  /* Toast - 手机适配 */
+  #toast {
+    top: 56px;
+    padding: 10px 20px;
+    font-size: 13px;
+  }
+
+  /* 评论统计 */
+  .comment-header {
+    font-size: 14px;
+  }
+}
+
+/* 小屏幕手机（< 375px） */
+@media screen and (max-width: 375px) {
+  #header .nav {
+    display: none; /* 彻底隐藏导航 */
+  }
+  #article {
+    padding: 12px 10px;
+    padding-bottom: 90px;
+  }
+  .article-title {
+    font-size: 16px;
+  }
+  .cmt-avatar {
+    width: 28px;
+    height: 28px;
+  }
+  .cmt-bubble {
+    padding: 8px 10px;
+    font-size: 13px;
+  }
+}
+
+/* 横屏模式 */
+@media screen and (max-height: 500px) and (orientation: landscape) {
+  #setup {
+    padding-top: 10px;
+  }
+  .feed-banner,
+  .feed-card {
+    margin-bottom: 6px;
+    padding: 10px;
+  }
+  #article {
+    padding: 10px;
+    padding-bottom: 60px;
+  }
+  .cmt {
+    padding: 6px 0;
+  }
+  #input-section {
+    padding: 6px 12px;
+  }
+  #unread-btn {
+    bottom: 50px;
+  }
+}
 </style>
 </head>
 <body>
