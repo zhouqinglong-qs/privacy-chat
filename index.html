@@ -334,7 +334,7 @@ function connect(){
   const proto = location.protocol === 'https:' ? 'wss:' : 'ws:';
   const isCloudflare = host.includes('trycloudflare.com');
   const isRailway = host.includes('.railway.app');
-  const wsPort = isCloudflare ? '' : ':3001';
+  const wsPort = (isCloudflare || isRailway) ? '' : ':3001';
   const url = `${proto}//${host}${wsPort}/${encodeURIComponent(myRoom)}`;
   dbg('连接:', url);
   try { ws = new WebSocket(url); }
