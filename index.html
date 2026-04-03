@@ -294,7 +294,9 @@ let soundOn = true, connected = false;
 const $ = id => document.getElementById(id);
 const ts = () => new Date().toLocaleTimeString('zh',{hour:'2-digit',minute:'2-digit',second:'2-digit'});
 let dbgCnt = 0;
-function dbg(...a) { console.log('[chat]', ...a); }
+function dbg(...a) {
+  console.log('[chat]', ...a);
+}
 let toastTimer = null;
 function toast(msg){ const t = $('toast'); t.textContent = msg; t.classList.add('show'); clearTimeout(toastTimer); }
 function hideToast(){ $('toast').classList.remove('show'); }
@@ -380,7 +382,17 @@ function onIdentity(d){ if(d.id === myId) return; peerId = d.id; peerName = d.na
 function onPeerList(d){ if(!d.peers || d.peers.length===0){ setPdot('wait'); return; } const p = d.peers[0]; peerId = p.id||peerId; peerName = p.name||'好友'; peerAva = p.ava||'😀'; setPdot('on'); sysCmt(peerAva+' '+peerName+' 已在评论中'); wsSend({ type:'identity', id:myId, name:myName, ava:myAva }); playSound('online'); }
 function onPeerJoin(d){ if(peerId && d.peer && d.peer.id===peerId) return; peerId = d.peer.id||peerId; peerName = d.peer.name||'好友'; peerAva = d.peer.ava||'😀'; setPdot('on'); sysCmt(peerAva+' '+peerName+' 加入了评论'); playSound('online'); toast(peerName+' 加入了！'); }
 function onPeerLeave(d){ const name = d.peer ? (d.peer.name||'对方') : '对方'; setPdot('wait'); peerId = null; sysCmt(name+' 离开了'); playSound('offline'); toast(name+' 离开了'); }
-function onChat(d){ const isMe = d.senderId === myId; addCmt(d.text||'', d.ts||Date.now(), !isMe, d.senderId||'', d.ava||'', d.name||''); if(!isMe) playSound('msg'); }
+function onChat(d){
+  const isMe = d.senderId === myId;
+  if(!isMe){
+    unread++;
+    updateUnread();
+    showNotif(d.name||peerName||'好友', d.text||'');
+    playSound('msg');
+  }
+  addCmt(d.text||'', d.ts||Date.now(), !isMe, d.senderId||'', d.ava||'', d.name||'');
+}
+
 function addCmt(text, ts, isOther, senderId, ava, name){
   const el = $('msgs');
   const div = document.createElement('div');
@@ -409,6 +421,17 @@ let originalTitle = '今日热闻 - 聚合资讯';
 window.addEventListener('blur', ()=>{ if(unread > 0) document.title = `🔔 ${unread}条新评论 - 今日热闻`; });
 window.addEventListener('focus', ()=>{ document.title = originalTitle; unread = 0; });
 let unread = 0;
+function updateUnread(){
+  const b = $('unread-btn');
+  b.textContent = unread>0 ? `↓ ${unread} 条新消息` : '↓ 新消息';
+  b.classList.toggle('show', unread>0 && !atBottom());
+  if(unread > 0) {
+    const toast = $('toast');
+    toast.textContent = `📩 ${unread} 条新消息`;
+    toast.classList.add('show');
+    document.title = `🔔 ${unread}条新消息 - 今日热闻`;
+  }
+}
 function showNotif(title, body){ document.title = '🔔 新评论 - 今日热闻'; if(Notification.permission === 'granted') new Notification(title, { body, icon:'💬' }); }
 function askNotif(){ if('Notification' in window && Notification.permission === 'default') Notification.requestPermission(); }
 let audioCtx = null;
